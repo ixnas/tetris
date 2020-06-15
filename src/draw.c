@@ -1,52 +1,63 @@
 #include "draw.h"
+#include "world.h"
 #include <ncurses.h>
 
-void DrawChar(char x, char y, char c)
+void DrawChar(int x, int y, char c)
 {
 	mvaddch(y, x * 2, c);
 }
 
-void DrawEmpty(char x, char y)
+void DrawEmpty(int x, int y)
 {
 	DrawChar(x, y, '.');
 }
 
-void DrawBlock(char x, char y)
+void DrawBlock(int x, int y)
 {
 	DrawChar(x, y, 'x');
 }
 
 void DrawEmptyBoard()
 {
-	for (char x = 0; x < 10; x++)
+	for (int x = 0; x < 10; x++)
 	{
-		for (char y = 0; y < 20; y++)
+		for (int y = 0; y < 20; y++)
 		{
 			DrawEmpty(x, y);
 		}
 	}
 }
 
-void DrawShape(struct Shape *shape, char offsetX, char offsetY)
+void DrawWorld()
 {
+	int size = sizeof(World.Cells) / sizeof(World.Cells[0]);
+	int totalLines = size / World.LineSize;
 	int x, y;
 
-	x = 0;
-	y = 0;
-
-	for (char i = 0; i < shape->ShapeSize; i++)
+	for (int i = 0; i < size; i++)
 	{
-		if (x == shape->LineSize)
+		if (World.Cells[i] != -1)
 		{
-			y++;
-			x = 0;
+			y = World.Cells[i] / World.LineSize;
+			x = World.Cells[i] - (World.LineSize * y);
+			DrawChar(x, y, '#');
+			move(24, 0);
+			printw("%d %d", x, y);
 		}
+	}
 
-		if (shape->Blocks[i] == 1)
-		{
-			DrawBlock(x + offsetX, y + offsetY);
-		}
+}
 
-		x++;
+void DrawShape(struct Shape *shape, int offsetX, int offsetY)
+{
+	int size = sizeof(shape->Blocks) / sizeof(shape->Blocks[0]);
+	int totalLines = shape->ShapeSize / shape->LineSize;
+	int x, y;
+
+	for (int i = 0; i < size; i++)
+	{
+		y = shape->Blocks[i] / totalLines;
+		x = shape->Blocks[i] - (shape->LineSize * y);
+		DrawBlock(x + offsetX, y + offsetY);
 	}
 }

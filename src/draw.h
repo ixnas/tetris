@@ -2,10 +2,11 @@
 #define DRAW_H
 #include "shape.h"
 
-void DrawChar(char x, char y, char c);
-void DrawEmpty(char x, char y);
-void DrawBlock(char x, char y);
+void DrawChar(int x, int y, char c);
+void DrawEmpty(int x, int y);
+void DrawBlock(int x, int y);
 void DrawEmptyBoard();
-void DrawShape(struct Shape *shape, char offsetX, char offsetY);
+void DrawWorld();
+void DrawShape(struct Shape *shape, int offsetX, int offsetY);
 
 #endif

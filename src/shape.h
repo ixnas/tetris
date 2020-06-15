@@ -5,14 +5,14 @@
 
 struct Shape
 {
-    bool Blocks[16];
-    char ShapeSize;
-    char LineSize;
+    int Blocks[4];
+    int ShapeSize;
+    int LineSize;
 };
 
 void CopyShape(struct Shape *old, struct Shape *new);
-void SetupShape(struct Shape *shape, char shapeSize, char lineSize, char *blockIndexes, char blockIndexesSize);
-char GetRotatedBlockPosition(char block, struct Shape *shape);
+void SetupShape(struct Shape *shape, int shapeSize, int lineSize, int *blockIndexes, int blockIndexesSize);
+int GetRotatedBlockPosition(int block, struct Shape *shape);
 void RotateShape(struct Shape *shape);
 void PrintShapeArray(struct Shape *shape);
 

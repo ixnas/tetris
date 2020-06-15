@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <ncurses.h>
 #include "arrcopy.h"
+#include "world.h"
 #include "draw.h"
 #include "shape.h"
 #include "shape_block.h"
@@ -34,10 +35,51 @@ bool ScreenSizeOk()
 	return x >= MIN_X * 2 && y >= MIN_Y;
 }
 
+void PrintShapeWorldCoordinates(struct Shape *shape, int offsetX, int offsetY)
+{
+	int size = sizeof(shape->Blocks) / sizeof(shape->Blocks[0]);
+	int coordinates[size];
+
+	for (int i = 0; i < size; i++)
+	{
+		coordinates[i] = ConvertToWorldCoordinate(shape->Blocks[i], shape->LineSize, offsetX, offsetY);
+	}
+
+	move(22, 0);
+	printw("World: ");
+	for (int i = 0; i < size; i++)
+	{
+		printw("%d ", coordinates[i]);
+	}
+}
+
+void AddToWorld(struct Shape *shape, int offsetX, int offsetY)
+{
+	int size = sizeof(shape->Blocks) / sizeof(shape->Blocks[0]);
+	int worldSize = sizeof(World.Cells) / sizeof(World.Cells[0]);
+	int coordinates[size];
+
+	for (int i = 0; i < size; i++)
+	{
+		coordinates[i] = ConvertToWorldCoordinate(shape->Blocks[i], shape->LineSize, offsetX, offsetY);
+	}
+
+	for (int i = 0; i < size; i++)
+	{
+		for (int j = 0; j < worldSize; j++)
+		{
+			if (World.Cells[j] == -1)
+			{
+				World.Cells[j] = coordinates[i];
+				break;
+			}
+		}
+	}
+}
+
 void Loop(struct Shape *shape)
 {
-	int c;
-	char x, y;
+	int x, y, c;
 
 	x = 0;
 	y = 0;
@@ -46,7 +88,9 @@ void Loop(struct Shape *shape)
 	{
 		DrawEmptyBoard();
 		DrawShape(shape, x, y);
+		DrawWorld();
 		PrintShapeArray(shape);
+		PrintShapeWorldCoordinates(shape, x, y);
 		refresh();
 		c = getch();
 		switch (c)
@@ -64,6 +108,9 @@ void Loop(struct Shape *shape)
 			break;
 		case KEY_RIGHT:
 			x++;
+			break;
+		case 'l':
+			AddToWorld(shape, x, y);
 			break;
 		}
 	}
@@ -88,6 +135,7 @@ int main()
 	if (ScreenSizeOk())
 	{
 		SetupShapes();
+		SetupWorld();
 		PlayGame();
 		endwin();
 	}

@@ -1,8 +1,8 @@
 #include "arrcopy.h"
 
-void CopyArray(const bool *old, bool *new, const char size)
+void CopyArray(const int *old, int *new, int size)
 {
-    for (char i = 0; i < size; i++)
+    for (int i = 0; i < size; i++)
     {
         *new = *old;
         old++;

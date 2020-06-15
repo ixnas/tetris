@@ -2,13 +2,13 @@
 
 void SetupShapeBlock()
 {
-	char shapeSize, lineSize, blockIndexesSize;
+	int shapeSize, lineSize, blockIndexesSize;
 
 	shapeSize = 4;
 	lineSize = 2;
 	blockIndexesSize = 4;
 
-	char blockIndexes[blockIndexesSize];
+	int blockIndexes[blockIndexesSize];
 
 	blockIndexes[0] = 0;
 	blockIndexes[1] = 1;

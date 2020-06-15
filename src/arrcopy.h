@@ -2,6 +2,6 @@
 #ifndef ARRCOPY_H
 #define ARRCOPY_H
 
-void CopyArray(const bool *old, bool *new, char size);
+void CopyArray(const int *old, int *new, int size);
 
 #endif

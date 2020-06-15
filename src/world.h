@@ -18,7 +18,7 @@ struct Collision
 void SetupWorld();
 int ConvertToWorldCoordinate(int block, int lineSize, int offsetX, int offsetY);
 void AddToWorld(struct Shape *shape, int offsetX, int offsetY);
-struct Collision CheckCollision(struct Shape *shape, int x, int y);
+void CheckCollision(struct Shape *shape, int x, int y, struct Collision *collision);
 int CheckClipping(struct Shape *shape, int x, int y);
 
 #endif

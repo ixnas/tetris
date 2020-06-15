@@ -47,15 +47,14 @@ void AddToWorld(struct Shape *shape, int offsetX, int offsetY)
     }
 }
 
-struct Collision CheckCollision(struct Shape *shape, int x, int y)
+void CheckCollision(struct Shape *shape, int x, int y, struct Collision *collision)
 {
     int shapeSize = sizeof(shape->Blocks) / sizeof(shape->Blocks[0]);
     int worldSize = sizeof(World.Cells) / sizeof(World.Cells[0]);
     int worldLines = worldSize / World.LineSize;
     int coordinate, blockBelow, blockLeft, blockRight;
 
-    struct Collision collision;
-    collision.Bottom = collision.Left = collision.Right = 0;
+    collision->Bottom = collision->Left = collision->Right = 0;
 
     for (int i = 0; i < shapeSize; i++)
     {
@@ -66,17 +65,17 @@ struct Collision CheckCollision(struct Shape *shape, int x, int y)
 
         if (coordinate >= worldSize - World.LineSize)
         {
-            collision.Bottom = 1;
+            collision->Bottom = 1;
         }
 
         if (coordinate % World.LineSize == 0)
         {
-            collision.Left = 1;
+            collision->Left = 1;
         }
 
         if (coordinate % World.LineSize == World.LineSize - 1)
         {
-            collision.Right = 1;
+            collision->Right = 1;
         }
 
         for (int j = 0; j < worldSize; j++)
@@ -87,22 +86,21 @@ struct Collision CheckCollision(struct Shape *shape, int x, int y)
             }
             if (World.Cells[j] == blockLeft)
             {
-                collision.Left = 1;
+                collision->Left = 1;
             }
             if (World.Cells[j] == blockRight)
             {
-                collision.Right = 1;
+                collision->Right = 1;
             }
             if (World.Cells[j] == blockBelow)
             {
-                collision.Bottom = 1;
+                collision->Bottom = 1;
             }
         }
     }
 
     move(26, 0);
-    printw("L: %d  R: %d  D: %d", collision.Left, collision.Right, collision.Bottom);
-    return collision;
+    printw("L: %d  R: %d  D: %d", collision->Left, collision->Right, collision->Bottom);
 }
 
 int CheckClipping(struct Shape *shape, int x, int y)

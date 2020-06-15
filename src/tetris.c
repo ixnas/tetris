@@ -68,7 +68,7 @@ void Loop(struct Shape *shape)
 		DrawWorld();
 		PrintShapeArray(shape);
 		PrintShapeWorldCoordinates(shape, x, y);
-		collision = CheckCollision(shape, x, y);
+		CheckCollision(shape, x, y, &collision);
 		refresh();
 		c = getch();
 		switch (c)

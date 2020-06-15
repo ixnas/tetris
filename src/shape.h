@@ -1,7 +1,7 @@
 #ifndef SHAPE_H
 #define SHAPE_H
 #include <stdbool.h>
-#include "arrcopy.h"
+#include "array_tools.h"
 
 struct Shape
 {

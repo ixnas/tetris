@@ -46,7 +46,6 @@ void RotateShape(struct Shape *shape)
 	int newBlockPosition;
 	int size = sizeof(shape->Blocks) / sizeof(shape->Blocks[0]);
 	int newShape[size];
-	int *shapeFirst = shape->Blocks;
 	CopyArray(shape->Blocks, newShape, size);
 
 	for (int i = 0; i < size; i++)
@@ -55,20 +54,8 @@ void RotateShape(struct Shape *shape)
 		newShape[i] = newBlockPosition;
 	}
 
-	for (int i = 0; i < size - 1; i++)
-	{
-		for (int j = 0; j < size - 1; j++)
-		{
-			if (newShape[j] > newShape[j + 1])
-			{
-				int a = newShape[j];
-				newShape[j] = newShape[j + 1];
-				newShape[j + 1] = a;
-			}
-		}
-	}
-
-	CopyArray(newShape, shapeFirst, size);
+	SortArray(newShape, size);
+	CopyArray(newShape, shape->Blocks, size);
 }
 
 void PrintShapeArray(struct Shape *shape)

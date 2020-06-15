@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <ncurses.h>
-#include "arrcopy.h"
+#include "array_tools.h"
 #include "world.h"
 #include "draw.h"
 #include "shape.h"
@@ -53,30 +53,6 @@ void PrintShapeWorldCoordinates(struct Shape *shape, int offsetX, int offsetY)
 	}
 }
 
-void AddToWorld(struct Shape *shape, int offsetX, int offsetY)
-{
-	int size = sizeof(shape->Blocks) / sizeof(shape->Blocks[0]);
-	int worldSize = sizeof(World.Cells) / sizeof(World.Cells[0]);
-	int coordinates[size];
-
-	for (int i = 0; i < size; i++)
-	{
-		coordinates[i] = ConvertToWorldCoordinate(shape->Blocks[i], shape->LineSize, offsetX, offsetY);
-	}
-
-	for (int i = 0; i < size; i++)
-	{
-		for (int j = 0; j < worldSize; j++)
-		{
-			if (World.Cells[j] == -1)
-			{
-				World.Cells[j] = coordinates[i];
-				break;
-			}
-		}
-	}
-}
-
 void Loop(struct Shape *shape)
 {
 	int x, y, c;
@@ -91,6 +67,7 @@ void Loop(struct Shape *shape)
 		DrawWorld();
 		PrintShapeArray(shape);
 		PrintShapeWorldCoordinates(shape, x, y);
+		CheckCollision(shape, x, y);
 		refresh();
 		c = getch();
 		switch (c)

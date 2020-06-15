@@ -12,12 +12,13 @@ struct World World;
 
 struct Collision
 {
-    int left, right, bottom;
+    int Left, Right, Bottom;
 };
 
 void SetupWorld();
 int ConvertToWorldCoordinate(int block, int lineSize, int offsetX, int offsetY);
 void AddToWorld(struct Shape *shape, int offsetX, int offsetY);
-struct Collision CheckCollision(struct Shape *shape, int moveX, int moveY);
+struct Collision CheckCollision(struct Shape *shape, int x, int y);
+int CheckClipping(struct Shape *shape, int x, int y);
 
 #endif

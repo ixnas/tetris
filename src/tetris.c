@@ -56,6 +56,7 @@ void PrintShapeWorldCoordinates(struct Shape *shape, int offsetX, int offsetY)
 void Loop(struct Shape *shape)
 {
 	int x, y, c;
+	struct Collision collision;
 
 	x = 0;
 	y = 0;
@@ -67,7 +68,7 @@ void Loop(struct Shape *shape)
 		DrawWorld();
 		PrintShapeArray(shape);
 		PrintShapeWorldCoordinates(shape, x, y);
-		CheckCollision(shape, x, y);
+		collision = CheckCollision(shape, x, y);
 		refresh();
 		c = getch();
 		switch (c)
@@ -76,15 +77,28 @@ void Loop(struct Shape *shape)
 			return;
 		case ' ':
 			RotateShape(shape);
+			if (CheckClipping(shape, x, y))
+			{
+				for (int i = 0; i < 3; i++) RotateShape(shape);
+			}
 			break;
 		case KEY_DOWN:
-			y++;
+			if (!collision.Bottom)
+			{
+				y++;
+			}
 			break;
 		case KEY_LEFT:
-			x--;
+			if (!collision.Left)
+			{
+				x--;
+			}
 			break;
 		case KEY_RIGHT:
-			x++;
+			if (!collision.Right)
+			{
+				x++;
+			}
 			break;
 		case 'l':
 			AddToWorld(shape, x, y);

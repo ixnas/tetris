@@ -1,0 +1,14 @@
+{
+    "files.associations": {
+        "__config": "cpp",
+        "algorithm": "cpp",
+        "ios": "cpp",
+        "locale": "cpp",
+        "ostream": "cpp",
+        "ratio": "cpp",
+        "__hash_table": "cpp",
+        "__locale": "cpp",
+        "functional": "cpp",
+        "complex": "cpp"
+    }
+}

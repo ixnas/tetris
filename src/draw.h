@@ -7,6 +7,6 @@ void DrawEmpty(int x, int y);
 void DrawBlock(int x, int y);
 void DrawEmptyBoard();
 void DrawWorld();
-void DrawShape(struct Shape *shape, int offsetX, int offsetY);
+void DrawShape(struct Shape *shape);
 
 #endif

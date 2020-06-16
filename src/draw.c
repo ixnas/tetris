@@ -48,7 +48,7 @@ void DrawWorld()
 
 }
 
-void DrawShape(struct Shape *shape, int offsetX, int offsetY)
+void DrawShape(struct Shape *shape)
 {
 	int size = sizeof(shape->Blocks) / sizeof(shape->Blocks[0]);
 	int totalLines = shape->ShapeSize / shape->LineSize;
@@ -58,6 +58,6 @@ void DrawShape(struct Shape *shape, int offsetX, int offsetY)
 	{
 		y = shape->Blocks[i] / totalLines;
 		x = shape->Blocks[i] - (shape->LineSize * y);
-		DrawBlock(x + offsetX, y + offsetY);
+		DrawBlock(x + shape->X, y + shape->Y);
 	}
 }

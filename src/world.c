@@ -23,7 +23,7 @@ int ConvertToWorldCoordinate(int block, int lineSize, int offsetX, int offsetY)
     return block + line * lineSizeDifference + offsetX + World.LineSize * offsetY;
 }
 
-void AddToWorld(struct Shape *shape, int offsetX, int offsetY)
+void AddToWorld(struct Shape *shape)
 {
     int size = sizeof(shape->Blocks) / sizeof(shape->Blocks[0]);
     int worldSize = sizeof(World.Cells) / sizeof(World.Cells[0]);
@@ -31,7 +31,7 @@ void AddToWorld(struct Shape *shape, int offsetX, int offsetY)
 
     for (int i = 0; i < size; i++)
     {
-        coordinates[i] = ConvertToWorldCoordinate(shape->Blocks[i], shape->LineSize, offsetX, offsetY);
+        coordinates[i] = ConvertToWorldCoordinate(shape->Blocks[i], shape->LineSize, shape->X, shape->Y);
     }
 
     for (int i = 0; i < size; i++)
@@ -47,7 +47,7 @@ void AddToWorld(struct Shape *shape, int offsetX, int offsetY)
     }
 }
 
-void CheckCollision(struct Shape *shape, int x, int y, struct Collision *collision)
+void CheckCollision(struct Shape *shape, struct Collision *collision)
 {
     int shapeSize = sizeof(shape->Blocks) / sizeof(shape->Blocks[0]);
     int worldSize = sizeof(World.Cells) / sizeof(World.Cells[0]);
@@ -58,7 +58,7 @@ void CheckCollision(struct Shape *shape, int x, int y, struct Collision *collisi
 
     for (int i = 0; i < shapeSize; i++)
     {
-        coordinate = ConvertToWorldCoordinate(shape->Blocks[i], shape->LineSize, x, y);
+        coordinate = ConvertToWorldCoordinate(shape->Blocks[i], shape->LineSize, shape->X, shape->Y);
         blockLeft = coordinate - 1;
         blockRight = coordinate + 1;
         blockBelow = coordinate + World.LineSize;
@@ -103,31 +103,48 @@ void CheckCollision(struct Shape *shape, int x, int y, struct Collision *collisi
     printw("L: %d  R: %d  D: %d", collision->Left, collision->Right, collision->Bottom);
 }
 
-int CheckClipping(struct Shape *shape, int x, int y)
+int CheckClipping(struct Shape *shape)
 {
     int shapeSize = sizeof(shape->Blocks) / sizeof(shape->Blocks[0]);
     int worldSize = sizeof(World.Cells) / sizeof(World.Cells[0]);
-    int coordinate;
+    int coordinate, currentLine, currentX;
 
-    move(27, 0);
     for (int i = 0; i < shapeSize; i++)
     {
-        coordinate = ConvertToWorldCoordinate(shape->Blocks[i], shape->LineSize, x, y);
-        if (coordinate < 0 || coordinate >= worldSize)
+        coordinate = ConvertToWorldCoordinate(shape->Blocks[i], shape->LineSize, shape->X, shape->Y);
+
+        currentLine = shape->Blocks[i] / shape->LineSize;
+        currentX = shape->Blocks[i] - currentLine * shape->LineSize + shape->X;
+
+        // Clipping through the sides of the world
+        if (currentX < 0 || currentX >= World.LineSize)
         {
+            move(27, 0);
             printw("Clipping: %d", 1);
             return 1;
         }
+
+        // Clipping through top and bottom of the world
+        if (coordinate < 0 || coordinate >= worldSize)
+        {
+            move(27, 0);
+            printw("Clipping: %d", 1);
+            return 1;
+        }
+
+        // Clipping into other blocks inside the world
         for (int j = 0; j < worldSize; j++)
         {
             if (coordinate == World.Cells[j])
             {
+                move(27, 0);
                 printw("Clipping: %d", 1);
                 return 1;
             }
         }
     }
 
+    move(27, 0);
     printw("Clipping: %d", 0);
     return 0;
 }

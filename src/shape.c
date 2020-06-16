@@ -7,6 +7,8 @@ void CopyShape(struct Shape *old, struct Shape *new)
 
 	new->LineSize = old->LineSize;
 	new->ShapeSize = old->ShapeSize;
+	new->X = old->X;
+	new->Y = old->Y;
 
 	totalBlocks = sizeof(old->Blocks) / sizeof(old->Blocks[0]);
 
@@ -22,6 +24,8 @@ void SetupShape(struct Shape *shape, int shapeSize, int lineSize, int *blockInde
 
 	shape->ShapeSize = shapeSize;
 	shape->LineSize = lineSize;
+	shape->X = 3; // arbitrary center
+	shape->Y = 0;
 
 	for (int i = 0; i < totalBlocks; i++)
 	{
@@ -41,7 +45,7 @@ int GetRotatedBlockPosition(int block, struct Shape *shape)
 	return ((block + 1) * totalLines - currentLine - 1) % totalBlocks;
 }
 
-void RotateShape(struct Shape *shape)
+void RotateShape(struct Shape *shape, int turns)
 {
 	int newBlockPosition;
 	int size = sizeof(shape->Blocks) / sizeof(shape->Blocks[0]);
@@ -50,7 +54,11 @@ void RotateShape(struct Shape *shape)
 
 	for (int i = 0; i < size; i++)
 	{
-		newBlockPosition = GetRotatedBlockPosition(shape->Blocks[i], shape);
+		newBlockPosition = shape->Blocks[i];
+		for (int j = 0 ; j < turns; j++)
+		{
+			newBlockPosition = GetRotatedBlockPosition(newBlockPosition, shape);
+		}
 		newShape[i] = newBlockPosition;
 	}
 

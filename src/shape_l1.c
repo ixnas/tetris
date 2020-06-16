@@ -15,5 +15,5 @@ void SetupShapeL1()
 	blockIndexes[2] = 4;
 	blockIndexes[3] = 5;
 
-	SetupShape(&L1, shapeSize, lineSize, blockIndexes, blockIndexesSize);
+	SetupShape(&L1, shapeSize, lineSize, blockIndexes, blockIndexesSize, 3);
 }

@@ -98,6 +98,7 @@ void Loop(struct Game *game)
             break;
         case 'l':
             AddToWorld(&game->CurrentShape);
+            CopyShape(&T, &game->CurrentShape);
             break;
         }
     }

@@ -9,13 +9,14 @@ void CopyShape(struct Shape *old, struct Shape *new)
 	new->ShapeSize = old->ShapeSize;
 	new->X = old->X;
 	new->Y = old->Y;
+	new->ColorPair = old->ColorPair;
 
 	totalBlocks = sizeof(old->Blocks) / sizeof(old->Blocks[0]);
 
 	CopyArray(old->Blocks, new->Blocks, totalBlocks);
 }
 
-void SetupShape(struct Shape *shape, int shapeSize, int lineSize, int *blockIndexes, int blockIndexesSize)
+void SetupShape(struct Shape *shape, int shapeSize, int lineSize, int *blockIndexes, int blockIndexesSize, int colorPair)
 {
 	int *firstBlockIndex;
 	int totalBlocks;
@@ -26,6 +27,7 @@ void SetupShape(struct Shape *shape, int shapeSize, int lineSize, int *blockInde
 	shape->LineSize = lineSize;
 	shape->X = 3; // arbitrary center
 	shape->Y = 0;
+	shape->ColorPair = colorPair;
 
 	for (int i = 0; i < totalBlocks; i++)
 	{

@@ -54,10 +54,12 @@ void DrawShape(struct Shape *shape)
 	int totalLines = shape->ShapeSize / shape->LineSize;
 	int x, y;
 
+	attron(COLOR_PAIR(shape->ColorPair));
 	for (int i = 0; i < size; i++)
 	{
 		y = shape->Blocks[i] / totalLines;
 		x = shape->Blocks[i] - (shape->LineSize * y);
 		DrawBlock(x + shape->X, y + shape->Y);
 	}
+	attron(COLOR_PAIR(1));
 }

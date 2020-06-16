@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <ncurses.h>
 #include "game.h"
 #include "shape_t.h"
@@ -41,11 +42,81 @@ void SetupShapes()
     SetupShapeBlock();
 }
 
+void SetNewBlock(struct Game *game)
+{
+    int x;
+
+    // Keep searching for an x in a range divisible by n
+    do
+    {
+        x = rand();
+    } while (x >= RAND_MAX - (RAND_MAX % 7));
+
+    x %= 7;
+
+    switch (x)
+    {
+    case 0:
+        CopyShape(&Block, &game->CurrentShape);
+        break;
+    case 1:
+        CopyShape(&L1, &game->CurrentShape);
+        break;
+    case 2:
+        CopyShape(&L2, &game->CurrentShape);
+        break;
+    case 3:
+        CopyShape(&Line, &game->CurrentShape);
+        break;
+    case 4:
+        CopyShape(&S1, &game->CurrentShape);
+        break;
+    case 5:
+        CopyShape(&S2, &game->CurrentShape);
+        break;
+    case 6:
+        CopyShape(&T, &game->CurrentShape);
+        break;
+    }
+}
+
+void RemoveFullLines(struct Game *game)
+{
+    int cellsFilled;
+    int size = sizeof(World.Cells) / sizeof(World.Cells[0]);
+
+    for (int i = 0; i < size; i = i + World.LineSize)
+    {
+        cellsFilled = 0;
+        for (int j = 0; j < World.LineSize; j++)
+        {
+            if (World.Cells[i + j] != -1)
+            {
+                cellsFilled++;
+            }
+        }
+
+        if (cellsFilled == World.LineSize)
+        {
+            // Overwrite lines
+            for (int j = i + World.LineSize - 1; j >= World.LineSize; j--)
+            {
+                World.Cells[j] = World.Cells[j - World.LineSize];
+            }
+            // Write empty line to beginning
+            for (int j = 0; j < World.LineSize; j++)
+            {
+                World.Cells[j] = -1;
+            }
+        }
+    }
+}
+
 void SetupGame(struct Game *game)
 {
     SetupShapes();
     SetupWorld();
-    CopyShape(&T, &game->CurrentShape);
+    SetNewBlock(game);
 }
 
 void Render(struct Game *game)
@@ -98,7 +169,8 @@ void Loop(struct Game *game)
             break;
         case 'l':
             AddToWorld(&game->CurrentShape);
-            CopyShape(&T, &game->CurrentShape);
+            RemoveFullLines(game);
+            SetNewBlock(game);
             break;
         }
     }

@@ -38,11 +38,11 @@ void DrawWorld()
 	{
 		if (World.Cells[i] != -1)
 		{
-			y = World.Cells[i] / World.LineSize;
-			x = World.Cells[i] - (World.LineSize * y);
+			y = i / World.LineSize;
+			x = i - (World.LineSize * y);
+			attron(COLOR_PAIR(World.Cells[i]));
 			DrawChar(x, y, '#');
-			move(24, 0);
-			printw("%d %d", x, y);
+			attron(COLOR_PAIR(1));
 		}
 	}
 

@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 #include <ncurses.h>
 #include "game.h"
 
@@ -28,6 +30,9 @@ void ShowErrorScreenNotOk()
 
 int main()
 {
+	struct timeval tm;
+	gettimeofday(&tm, NULL);
+	srand(tm.tv_sec + tm.tv_usec * 1000000ul);
 	initscr();
 	start_color();
 	init_pair(1, COLOR_WHITE, COLOR_BLACK);

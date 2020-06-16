@@ -13,7 +13,6 @@ void SetupWorld()
     }
 
     World.LineSize = 10;
-    World.Cells[0] = 45;
 }
 
 int ConvertToWorldCoordinate(int block, int lineSize, int offsetX, int offsetY)
@@ -34,15 +33,11 @@ void AddToWorld(struct Shape *shape)
         coordinates[i] = ConvertToWorldCoordinate(shape->Blocks[i], shape->LineSize, shape->X, shape->Y);
     }
 
-    for (int i = 0; i < size; i++)
+    for (int j = 0; j < size; j++)
     {
-        for (int j = 0; j < worldSize; j++)
+        if (World.Cells[coordinates[j]] == -1)
         {
-            if (World.Cells[j] == -1)
-            {
-                World.Cells[j] = coordinates[i];
-                break;
-            }
+            World.Cells[coordinates[j]] = shape->ColorPair;
         }
     }
 }
@@ -78,24 +73,17 @@ void CheckCollision(struct Shape *shape, struct Collision *collision)
             collision->Right = 1;
         }
 
-        for (int j = 0; j < worldSize; j++)
+        if (World.Cells[blockLeft] != -1)
         {
-            if (World.Cells[j] == -1)
-            {
-                continue;
-            }
-            if (World.Cells[j] == blockLeft)
-            {
-                collision->Left = 1;
-            }
-            if (World.Cells[j] == blockRight)
-            {
-                collision->Right = 1;
-            }
-            if (World.Cells[j] == blockBelow)
-            {
-                collision->Bottom = 1;
-            }
+            collision->Left = 1;
+        }
+        if (World.Cells[blockRight] != -1)
+        {
+            collision->Right = 1;
+        }
+        if (World.Cells[blockBelow] != -1)
+        {
+            collision->Bottom = 1;
         }
     }
 
@@ -133,14 +121,11 @@ int CheckClipping(struct Shape *shape)
         }
 
         // Clipping into other blocks inside the world
-        for (int j = 0; j < worldSize; j++)
+        if (World.Cells[coordinate] != -1)
         {
-            if (coordinate == World.Cells[j])
-            {
-                move(27, 0);
-                printw("Clipping: %d", 1);
-                return 1;
-            }
+            move(27, 0);
+            printw("Clipping: %d", 1);
+            return 1;
         }
     }
 

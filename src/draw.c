@@ -5,57 +5,65 @@
 void DrawChar(int x, int y, char c)
 {
 	mvaddch(y, x * 2, c);
-}
-
-void DrawEmpty(int x, int y)
-{
-	DrawChar(x, y, '.');
+	mvaddch(y, x * 2 + 1, ' ');
 }
 
 void DrawBlock(int x, int y)
 {
-	DrawChar(x, y, 'x');
+	DrawChar(x + 1, y + 1, ' ');
 }
 
-void DrawEmptyBoard()
+void DrawEmptyBoard(struct World *world)
 {
-	for (int x = 0; x < 10; x++)
+	int i, j;
+	int worldSize = sizeof(World.Cells) / sizeof(World.Cells[0]);
+	int lines = worldSize / world->LineSize;
+	attron(COLOR_PAIR(4));
+	for (i = 0; i < world->LineSize + 2; i++)
 	{
-		for (int y = 0; y < 20; y++)
-		{
-			DrawEmpty(x, y);
-		}
+		DrawChar(i, 0, '0');
+		DrawChar(i, lines + 1, '0');
 	}
+	for (i = 1; i <= lines; i++)
+	{
+		DrawChar(0, i, '0');
+		DrawChar(world->LineSize + 1, i, '0');
+		attron(COLOR_PAIR(1));
+		for (j = 1; j <= world->LineSize; j++)
+		{
+			DrawChar(j, i, ' ');
+		}
+		attron(COLOR_PAIR(4));
+	}
+	attron(COLOR_PAIR(1));
 }
 
 void DrawWorld()
 {
 	int size = sizeof(World.Cells) / sizeof(World.Cells[0]);
-	int totalLines = size / World.LineSize;
-	int x, y;
+	int x, y, i;
 
-	for (int i = 0; i < size; i++)
+	for (i = 0; i < size; i++)
 	{
 		if (World.Cells[i] != -1)
 		{
 			y = i / World.LineSize;
 			x = i - (World.LineSize * y);
 			attron(COLOR_PAIR(World.Cells[i]));
-			DrawChar(x, y, '#');
+			DrawBlock(x, y);
 			attron(COLOR_PAIR(1));
 		}
 	}
-
 }
 
 void DrawShape(struct Shape *shape)
 {
 	int size = sizeof(shape->Blocks) / sizeof(shape->Blocks[0]);
 	int totalLines = shape->ShapeSize / shape->LineSize;
-	int x, y;
+	int x, y, i;
 
 	attron(COLOR_PAIR(shape->ColorPair));
-	for (int i = 0; i < size; i++)
+	for (i = 0; i < size; i++)
 	{
 		y = shape->Blocks[i] / totalLines;
 		x = shape->Blocks[i] - (shape->LineSize * y);

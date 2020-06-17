@@ -19,17 +19,17 @@ void CopyShape(struct Shape *old, struct Shape *new)
 void SetupShape(struct Shape *shape, int shapeSize, int lineSize, int *blockIndexes, int blockIndexesSize, int colorPair)
 {
 	int *firstBlockIndex;
-	int totalBlocks;
+	int totalBlocks, i;
 	firstBlockIndex = blockIndexes;
 	totalBlocks = sizeof(shape->Blocks) / sizeof(shape->Blocks[0]);
 
 	shape->ShapeSize = shapeSize;
 	shape->LineSize = lineSize;
-	shape->X = 3; // arbitrary center
+	shape->X = 3; /* arbitrary center */
 	shape->Y = 0;
 	shape->ColorPair = colorPair;
 
-	for (int i = 0; i < totalBlocks; i++)
+	for (i = 0; i < totalBlocks; i++)
 	{
 		shape->Blocks[i] = *blockIndexes;
 		blockIndexes++;
@@ -49,15 +49,15 @@ int GetRotatedBlockPosition(int block, struct Shape *shape)
 
 void RotateShape(struct Shape *shape, int turns)
 {
-	int newBlockPosition;
+	int newBlockPosition, i, j;
 	int size = sizeof(shape->Blocks) / sizeof(shape->Blocks[0]);
 	int newShape[size];
 	CopyArray(shape->Blocks, newShape, size);
 
-	for (int i = 0; i < size; i++)
+	for (i = 0; i < size; i++)
 	{
 		newBlockPosition = shape->Blocks[i];
-		for (int j = 0 ; j < turns; j++)
+		for (j = 0 ; j < turns; j++)
 		{
 			newBlockPosition = GetRotatedBlockPosition(newBlockPosition, shape);
 		}
@@ -66,16 +66,4 @@ void RotateShape(struct Shape *shape, int turns)
 
 	SortArray(newShape, size);
 	CopyArray(newShape, shape->Blocks, size);
-}
-
-void PrintShapeArray(struct Shape *shape)
-{
-	move(21, 0);
-	int arrSize = sizeof(shape->Blocks) / sizeof(shape->Blocks[0]);
-	printw("Local: ");
-	for (int i = 0; i < arrSize; i++)
-	{
-		printw("%d ", shape->Blocks[i]);
-	}
-	refresh();
 }

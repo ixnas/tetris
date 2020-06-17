@@ -2,7 +2,8 @@
 
 void CopyArray(const int *old, int *new, int size)
 {
-    for (int i = 0; i < size; i++)
+    int i;
+    for (i = 0; i < size; i++)
     {
         *(new + i) = *(old + i);
     }
@@ -10,9 +11,10 @@ void CopyArray(const int *old, int *new, int size)
 
 void SortArray(int *array, int size)
 {
-    for (int i = 0; i < size - 1; i++)
+    int i, j;
+    for (i = 0; i < size - 1; i++)
     {
-        for (int j = 0; j < size - 1; j++)
+        for (j = 0; j < size - 1; j++)
         {
             if (*(array + j) > *(array + j + 1))
             {

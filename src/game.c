@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <ncurses.h>
+#include <sys/time.h>
 #include "game.h"
 #include "shape_t.h"
 #include "array_tools.h"
@@ -12,24 +13,6 @@
 #include "shape_s1.h"
 #include "shape_s2.h"
 #include "shape_t.h"
-
-void PrintShapeWorldCoordinates(struct Shape *shape)
-{
-    int size = sizeof(shape->Blocks) / sizeof(shape->Blocks[0]);
-    int coordinates[size];
-
-    for (int i = 0; i < size; i++)
-    {
-        coordinates[i] = ConvertToWorldCoordinate(shape->Blocks[i], shape->LineSize, shape->X, shape->Y);
-    }
-
-    move(22, 0);
-    printw("World: ");
-    for (int i = 0; i < size; i++)
-    {
-        printw("%d ", coordinates[i]);
-    }
-}
 
 void SetupShapes()
 {
@@ -45,8 +28,6 @@ void SetupShapes()
 void SetNewBlock(struct Game *game)
 {
     int x;
-
-    // Keep searching for an x in a range divisible by n
     do
     {
         x = rand();
@@ -82,13 +63,13 @@ void SetNewBlock(struct Game *game)
 
 void RemoveFullLines(struct Game *game)
 {
-    int cellsFilled;
+    int cellsFilled, i, j;
     int size = sizeof(World.Cells) / sizeof(World.Cells[0]);
 
-    for (int i = 0; i < size; i = i + World.LineSize)
+    for (i = 0; i < size; i = i + World.LineSize)
     {
         cellsFilled = 0;
-        for (int j = 0; j < World.LineSize; j++)
+        for (j = 0; j < World.LineSize; j++)
         {
             if (World.Cells[i + j] != -1)
             {
@@ -98,13 +79,13 @@ void RemoveFullLines(struct Game *game)
 
         if (cellsFilled == World.LineSize)
         {
-            // Overwrite lines
-            for (int j = i + World.LineSize - 1; j >= World.LineSize; j--)
+            /* Overwrite lines */
+            for (j = i + World.LineSize - 1; j >= World.LineSize; j--)
             {
                 World.Cells[j] = World.Cells[j - World.LineSize];
             }
-            // Write empty line to beginning
-            for (int j = 0; j < World.LineSize; j++)
+            /* Write empty line to beginning */
+            for (j = 0; j < World.LineSize; j++)
             {
                 World.Cells[j] = -1;
             }
@@ -121,57 +102,122 @@ void SetupGame(struct Game *game)
 
 void Render(struct Game *game)
 {
-    DrawEmptyBoard();
+    DrawEmptyBoard(&World);
     DrawShape(&game->CurrentShape);
     DrawWorld();
-    PrintShapeArray(&game->CurrentShape);
-    PrintShapeWorldCoordinates(&game->CurrentShape);
+    move(0,0);
+}
+
+void MoveLeft(struct Game *game)
+{
+    if (!game->Collision.Left)
+    {
+        game->CurrentShape.X--;
+    }
+}
+
+void MoveRight(struct Game *game)
+{
+    if (!game->Collision.Right)
+    {
+        game->CurrentShape.X++;
+    }
+}
+
+void MoveDown(struct Game *game, int *timeout)
+{
+    if (!game->Collision.Bottom)
+    {
+        game->CurrentShape.Y++;
+    }
+    else
+    {
+        AddToWorld(&game->CurrentShape);
+        RemoveFullLines(game);
+        SetNewBlock(game);
+    }
+
+    *timeout = 1000;
+}
+
+void Rotate(struct Game *game, int *clipping)
+{
+    RotateShape(&game->CurrentShape, 1);
+    *clipping = CheckClipping(&game->CurrentShape);
+    if (*clipping)
+    {
+        RotateShape(&game->CurrentShape, 3);
+        *clipping = CheckClipping(&game->CurrentShape);
+    }
+}
+
+void Drop(struct Game *game, int *timeout)
+{
+    while (!game->Collision.Bottom)
+    {
+        game->CurrentShape.Y++;
+        CheckCollision(&game->CurrentShape, &game->Collision);
+    }
+
+    AddToWorld(&game->CurrentShape);
+    RemoveFullLines(game);
+    SetNewBlock(game);
+
+    *timeout = 1000;
 }
 
 void Loop(struct Game *game)
 {
     int c;
+    struct timeval startTime;
+    struct timeval endTime;
+    int totalTime;
+    int clipping = 0;
+    int timeout = 1000;
+    timeout(timeout);
 
     while (1)
     {
+        clipping = CheckClipping(&game->CurrentShape);
+        if (clipping) return;
+        gettimeofday(&startTime, NULL);
         Render(game);
         CheckCollision(&game->CurrentShape, &game->Collision);
         refresh();
         c = getch();
+        gettimeofday(&endTime, NULL);
+        totalTime = ((endTime.tv_sec - startTime.tv_sec) * 1000000 + endTime.tv_usec - startTime.tv_usec) / 1000;
         switch (c)
         {
         case 'q':
             return;
         case ' ':
-            RotateShape(&game->CurrentShape, 1);
-            if (CheckClipping(&game->CurrentShape))
-            {
-                RotateShape(&game->CurrentShape, 3);
-            }
+            Drop(game, &timeout);
+            break;
+        case KEY_UP:
+            Rotate(game, &clipping);
             break;
         case KEY_DOWN:
-            if (!game->Collision.Bottom)
-            {
-                game->CurrentShape.Y++;
-            }
+            MoveDown(game, &timeout);
             break;
         case KEY_LEFT:
-            if (!game->Collision.Left)
-            {
-                game->CurrentShape.X--;
-            }
+            MoveLeft(game);
             break;
         case KEY_RIGHT:
-            if (!game->Collision.Right)
-            {
-                game->CurrentShape.X++;
-            }
+            MoveRight(game);
             break;
-        case 'l':
-            AddToWorld(&game->CurrentShape);
-            RemoveFullLines(game);
-            SetNewBlock(game);
+        case -1:
+            MoveDown(game, &timeout);
             break;
         }
+        if (c != -1)
+        {
+            timeout = timeout - totalTime;
+            if (timeout < 1)
+            {
+                timeout = 1000;
+            }
+        }
+        timeout(timeout);
     }
 }

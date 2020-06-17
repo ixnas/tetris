@@ -1,2 +1,2 @@
 all:
-	CC -o bin/tetris -lncurses src/*.c
+	CC -std=c89 -Wall -O3 -o bin/tetris -lncurses src/*.c

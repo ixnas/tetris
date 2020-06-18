@@ -1,29 +1,27 @@
 #include "world.h"
 #include <ncurses.h> /* remove this shit */
 
-struct World World;
-
-void SetupWorld()
+static int ConvertToWorldCoordinate(struct World *world, int block, int lineSize, int offsetX, int offsetY)
 {
-    int size = sizeof(World.Cells) / sizeof(World.Cells[0]);
+    int line = block / lineSize;
+    int lineSizeDifference = world->LineSize - lineSize;
+    return block + line * lineSizeDifference + offsetX + world->LineSize * offsetY;
+}
+
+void SetupWorld(struct World *world)
+{
+    int size = sizeof(world->Cells) / sizeof(world->Cells[0]);
     int i;
 
     for (i = 0; i < size; i++)
     {
-        World.Cells[i] = -1;
+        world->Cells[i] = -1;
     }
 
-    World.LineSize = 10;
+    world->LineSize = 10;
 }
 
-int ConvertToWorldCoordinate(int block, int lineSize, int offsetX, int offsetY)
-{
-    int line = block / lineSize;
-    int lineSizeDifference = World.LineSize - lineSize;
-    return block + line * lineSizeDifference + offsetX + World.LineSize * offsetY;
-}
-
-void AddToWorld(struct Shape *shape)
+void AddToWorld(struct World *world, struct Shape *shape)
 {
     int size = sizeof(shape->Blocks) / sizeof(shape->Blocks[0]);
     int coordinates[size];
@@ -31,78 +29,78 @@ void AddToWorld(struct Shape *shape)
 
     for (i = 0; i < size; i++)
     {
-        coordinates[i] = ConvertToWorldCoordinate(shape->Blocks[i], shape->LineSize, shape->X, shape->Y);
+        coordinates[i] = ConvertToWorldCoordinate(world, shape->Blocks[i], shape->LineSize, shape->X, shape->Y);
     }
 
     for (i = 0; i < size; i++)
     {
-        if (World.Cells[coordinates[i]] == -1)
+        if (world->Cells[coordinates[i]] == -1)
         {
-            World.Cells[coordinates[i]] = shape->ColorPair;
+            world->Cells[coordinates[i]] = shape->ColorPair;
         }
     }
 }
 
-void CheckCollision(struct Shape *shape, struct Collision *collision)
+void CheckCollision(struct World *world, struct Shape *shape, struct Collision *collision)
 {
     int shapeSize = sizeof(shape->Blocks) / sizeof(shape->Blocks[0]);
-    int worldSize = sizeof(World.Cells) / sizeof(World.Cells[0]);
+    int worldSize = sizeof(world->Cells) / sizeof(world->Cells[0]);
     int coordinate, blockBelow, blockLeft, blockRight, i;
 
     collision->Bottom = collision->Left = collision->Right = 0;
 
     for (i = 0; i < shapeSize; i++)
     {
-        coordinate = ConvertToWorldCoordinate(shape->Blocks[i], shape->LineSize, shape->X, shape->Y);
+        coordinate = ConvertToWorldCoordinate(world, shape->Blocks[i], shape->LineSize, shape->X, shape->Y);
         blockLeft = coordinate - 1;
         blockRight = coordinate + 1;
-        blockBelow = coordinate + World.LineSize;
+        blockBelow = coordinate + world->LineSize;
 
-        if (coordinate >= worldSize - World.LineSize)
+        if (coordinate >= worldSize - world->LineSize)
         {
             collision->Bottom = 1;
         }
 
-        if (coordinate % World.LineSize == 0)
+        if (coordinate % world->LineSize == 0)
         {
             collision->Left = 1;
         }
 
-        if (coordinate % World.LineSize == World.LineSize - 1)
+        if (coordinate % world->LineSize == world->LineSize - 1)
         {
             collision->Right = 1;
         }
 
-        if (World.Cells[blockLeft] != -1)
+        if (world->Cells[blockLeft] != -1)
         {
             collision->Left = 1;
         }
-        if (World.Cells[blockRight] != -1)
+        if (world->Cells[blockRight] != -1)
         {
             collision->Right = 1;
         }
-        if (World.Cells[blockBelow] != -1)
+        if (world->Cells[blockBelow] != -1)
         {
             collision->Bottom = 1;
         }
     }
 }
 
-int CheckClipping(struct Shape *shape)
+int CheckClipping(struct World *world, struct Shape *shape)
 {
     int shapeSize = sizeof(shape->Blocks) / sizeof(shape->Blocks[0]);
-    int worldSize = sizeof(World.Cells) / sizeof(World.Cells[0]);
+    int worldSize = sizeof(world->Cells) / sizeof(world->Cells[0]);
     int coordinate, currentLine, currentX, i;
 
     for (i = 0; i < shapeSize; i++)
     {
-        coordinate = ConvertToWorldCoordinate(shape->Blocks[i], shape->LineSize, shape->X, shape->Y);
+        coordinate = ConvertToWorldCoordinate(world, shape->Blocks[i], shape->LineSize, shape->X, shape->Y);
 
         currentLine = shape->Blocks[i] / shape->LineSize;
         currentX = shape->Blocks[i] - currentLine * shape->LineSize + shape->X;
 
         /* Clipping through the sides of the world */
-        if (currentX < 0 || currentX >= World.LineSize)
+        if (currentX < 0 || currentX >= world->LineSize)
         {
             return 1;
         }
@@ -114,7 +112,7 @@ int CheckClipping(struct Shape *shape)
         }
 
         /* Clipping into other blocks inside the world */
-        if (World.Cells[coordinate] != -1)
+        if (world->Cells[coordinate] != -1)
         {
             return 1;
         }

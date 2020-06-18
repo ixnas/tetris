@@ -13,9 +13,7 @@ struct Shape
     int ColorPair;
 };
 
-void CopyShape(struct Shape *old, struct Shape *new);
 void SetupShape(struct Shape *shape, int shapeSize, int lineSize, int *blockIndexes, int blockIndexesSize, int colorPair);
-int GetRotatedBlockPosition(int block, struct Shape *shape);
 void RotateShape(struct Shape *shape, int turns);
 
 #endif

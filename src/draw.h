@@ -1,12 +1,12 @@
 #ifndef DRAW_H
 #define DRAW_H
 #include "shape.h"
+#include "world.h"
 
-void DrawChar(int x, int y, char c);
-void DrawEmpty(int x, int y);
-void DrawBlock(int x, int y);
-void DrawEmptyBoard();
-void DrawWorld();
+void DrawEmptyBoard(struct World *world);
+void DrawWorld(struct World *world);
 void DrawShape(struct Shape *shape);
+void DrawScore(int *score);
+void DrawGameOver();
 
 #endif

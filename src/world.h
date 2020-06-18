@@ -8,17 +8,14 @@ struct World
     int LineSize;
 };
 
-struct World World;
-
 struct Collision
 {
     int Left, Right, Bottom;
 };
 
-void SetupWorld();
-int ConvertToWorldCoordinate(int block, int lineSize, int offsetX, int offsetY);
-void AddToWorld(struct Shape *shape);
-void CheckCollision(struct Shape *shape, struct Collision *collision);
-int CheckClipping(struct Shape *shape);
+void SetupWorld(struct World *world);
+void AddToWorld(struct World *world, struct Shape *shape);
+void CheckCollision(struct World *world, struct Shape *shape, struct Collision *collision);
+int CheckClipping(struct World *world, struct Shape *shape);
 
 #endif

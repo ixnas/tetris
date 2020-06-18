@@ -8,6 +8,7 @@ struct Game
     struct Shape CurrentShape;
     struct Collision Collision;
     struct World World;
+    int Score;
 };
 
 void SetupGame(struct Game *game);

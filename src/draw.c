@@ -1,14 +1,13 @@
 #include "draw.h"
-#include "world.h"
 #include <ncurses.h>
 
-void DrawChar(int x, int y, char c)
+static void DrawChar(int x, int y, char c)
 {
 	mvaddch(y, x * 2, c);
 	mvaddch(y, x * 2 + 1, ' ');
 }
 
-void DrawBlock(int x, int y)
+static void DrawBlock(int x, int y)
 {
 	DrawChar(x + 1, y + 1, ' ');
 }
@@ -16,7 +15,7 @@ void DrawBlock(int x, int y)
 void DrawEmptyBoard(struct World *world)
 {
 	int i, j;
-	int worldSize = sizeof(World.Cells) / sizeof(World.Cells[0]);
+	int worldSize = sizeof(world->Cells) / sizeof(world->Cells[0]);
 	int lines = worldSize / world->LineSize;
 	attron(COLOR_PAIR(4));
 	for (i = 0; i < world->LineSize + 2; i++)
@@ -38,18 +37,18 @@ void DrawEmptyBoard(struct World *world)
 	attron(COLOR_PAIR(1));
 }
 
-void DrawWorld()
+void DrawWorld(struct World *world)
 {
-	int size = sizeof(World.Cells) / sizeof(World.Cells[0]);
+	int size = sizeof(world->Cells) / sizeof(world->Cells[0]);
 	int x, y, i;
 
 	for (i = 0; i < size; i++)
 	{
-		if (World.Cells[i] != -1)
+		if (world->Cells[i] != -1)
 		{
-			y = i / World.LineSize;
-			x = i - (World.LineSize * y);
-			attron(COLOR_PAIR(World.Cells[i]));
+			y = i / world->LineSize;
+			x = i - (world->LineSize * y);
+			attron(COLOR_PAIR(world->Cells[i]));
 			DrawBlock(x, y);
 			attron(COLOR_PAIR(1));
 		}
@@ -70,4 +69,23 @@ void DrawShape(struct Shape *shape)
 		DrawBlock(x + shape->X, y + shape->Y);
 	}
 	attron(COLOR_PAIR(1));
+}
+
+void DrawScore(int *score)
+{
+	move(0, 25);
+	printw("Score: %d", *score);
+}
+
+void DrawGameOver()
+{
+	attron(COLOR_PAIR(9));
+	move(3, 25);
+	printw("GAME OVER");
+
+	attron(COLOR_PAIR(1));
+	move(5, 25);
+	printw("Press Q to quit.");
+
+	move(0, 0);
 }

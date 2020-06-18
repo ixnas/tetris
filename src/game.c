@@ -1,31 +1,14 @@
 #include <stdlib.h>
 #include <ncurses.h>
 #include <sys/time.h>
+#include "defaults.h"
 #include "game.h"
-#include "shape_t.h"
 #include "array_tools.h"
 #include "draw.h"
 #include "shape.h"
-#include "shape_block.h"
-#include "shape_l1.h"
-#include "shape_l2.h"
-#include "shape_line.h"
-#include "shape_s1.h"
-#include "shape_s2.h"
-#include "shape_t.h"
+#include "shape_types.h"
 
-void SetupShapes()
-{
-    SetupShapeLine();
-    SetupShapeL1();
-    SetupShapeL2();
-    SetupShapeS1();
-    SetupShapeS2();
-    SetupShapeT();
-    SetupShapeBlock();
-}
-
-void SetNewBlock(struct Game *game)
+static void SetNewBlock(struct Game *game)
 {
     int x;
     do
@@ -38,77 +21,109 @@ void SetNewBlock(struct Game *game)
     switch (x)
     {
     case 0:
-        CopyShape(&Block, &game->CurrentShape);
+        SetupShapeBlock(&game->CurrentShape);
         break;
     case 1:
-        CopyShape(&L1, &game->CurrentShape);
+        SetupShapeL1(&game->CurrentShape);
         break;
     case 2:
-        CopyShape(&L2, &game->CurrentShape);
+        SetupShapeL2(&game->CurrentShape);
         break;
     case 3:
-        CopyShape(&Line, &game->CurrentShape);
+        SetupShapeLine(&game->CurrentShape);
         break;
     case 4:
-        CopyShape(&S1, &game->CurrentShape);
+        SetupShapeS1(&game->CurrentShape);
         break;
     case 5:
-        CopyShape(&S2, &game->CurrentShape);
+        SetupShapeS2(&game->CurrentShape);
         break;
     case 6:
-        CopyShape(&T, &game->CurrentShape);
+        SetupShapeT(&game->CurrentShape);
         break;
     }
 }
 
-void RemoveFullLines(struct Game *game)
+static void RemoveFullLines(struct Game *game)
 {
     int cellsFilled, i, j;
-    int size = sizeof(World.Cells) / sizeof(World.Cells[0]);
+    int size = sizeof(game->World.Cells) / sizeof(game->World.Cells[0]);
+    int linesCleared = 0;
 
-    for (i = 0; i < size; i = i + World.LineSize)
+    for (i = 0; i < size; i = i + game->World.LineSize)
     {
         cellsFilled = 0;
-        for (j = 0; j < World.LineSize; j++)
+        for (j = 0; j < game->World.LineSize; j++)
         {
-            if (World.Cells[i + j] != -1)
+            if (game->World.Cells[i + j] != -1)
             {
                 cellsFilled++;
             }
         }
 
-        if (cellsFilled == World.LineSize)
+        if (cellsFilled == game->World.LineSize)
         {
             /* Overwrite lines */
-            for (j = i + World.LineSize - 1; j >= World.LineSize; j--)
+            for (j = i + game->World.LineSize - 1; j >= game->World.LineSize; j--)
             {
-                World.Cells[j] = World.Cells[j - World.LineSize];
+                game->World.Cells[j] = game->World.Cells[j - game->World.LineSize];
             }
             /* Write empty line to beginning */
-            for (j = 0; j < World.LineSize; j++)
+            for (j = 0; j < game->World.LineSize; j++)
             {
-                World.Cells[j] = -1;
+                game->World.Cells[j] = -1;
             }
+
+            linesCleared++;
         }
+    }
+    switch (linesCleared)
+    {
+    case 1:
+        game->Score += SCORE_SINGLE;
+        break;
+    case 2:
+        game->Score += SCORE_DOUBLE;
+        break;
+    case 3:
+        game->Score += SCORE_TRIPLE;
+        break;
+    case 4:
+        game->Score += SCORE_TETRIS;
+        break;
     }
 }
 
-void SetupGame(struct Game *game)
+static void SetupCurses(struct Game *game)
 {
-    SetupShapes();
-    SetupWorld();
-    SetNewBlock(game);
+    struct timeval tm;
+    noecho();
+    gettimeofday(&tm, NULL);
+    srand(tm.tv_sec + tm.tv_usec * 1000000ul);
+    start_color();
+    init_pair(1, COLOR_WHITE, COLOR_BLACK);
+    init_pair(2, COLOR_BLACK, COLOR_YELLOW);
+    init_pair(3, COLOR_BLACK, COLOR_BLUE);
+    init_pair(4, COLOR_BLACK, COLOR_WHITE);
+    init_pair(5, COLOR_BLACK, COLOR_CYAN);
+    init_pair(6, COLOR_BLACK, COLOR_GREEN);
+    init_pair(7, COLOR_BLACK, COLOR_MAGENTA);
+    init_pair(8, COLOR_BLACK, COLOR_RED);
+    init_pair(9, COLOR_RED, COLOR_BLACK);
+    attron(COLOR_PAIR(1));
+    keypad(stdscr, 1);
 }
 
-void Render(struct Game *game)
+static void Render(struct Game *game)
 {
-    DrawEmptyBoard(&World);
+    DrawEmptyBoard(&game->World);
     DrawShape(&game->CurrentShape);
-    DrawWorld();
-    move(0,0);
+    DrawWorld(&game->World);
+    DrawScore(&game->Score);
+    move(0, 0);
 }
 
-void MoveLeft(struct Game *game)
+static void MoveLeft(struct Game *game)
 {
     if (!game->Collision.Left)
     {
@@ -116,7 +131,7 @@ void MoveLeft(struct Game *game)
     }
 }
 
-void MoveRight(struct Game *game)
+static void MoveRight(struct Game *game)
 {
     if (!game->Collision.Right)
     {
@@ -124,7 +139,7 @@ void MoveRight(struct Game *game)
     }
 }
 
-void MoveDown(struct Game *game, int *timeout)
+static void MoveDown(struct Game *game, int *timeout)
 {
     if (!game->Collision.Bottom)
     {
@@ -132,38 +147,57 @@ void MoveDown(struct Game *game, int *timeout)
     }
     else
     {
-        AddToWorld(&game->CurrentShape);
+        AddToWorld(&game->World, &game->CurrentShape);
         RemoveFullLines(game);
         SetNewBlock(game);
     }
 
-    *timeout = 1000;
+    *timeout = FALL_SPEED_MS;
 }
 
-void Rotate(struct Game *game, int *clipping)
+static void Rotate(struct Game *game, int *clipping)
 {
     RotateShape(&game->CurrentShape, 1);
-    *clipping = CheckClipping(&game->CurrentShape);
+    *clipping = CheckClipping(&game->World, &game->CurrentShape);
     if (*clipping)
     {
         RotateShape(&game->CurrentShape, 3);
-        *clipping = CheckClipping(&game->CurrentShape);
+        *clipping = CheckClipping(&game->World, &game->CurrentShape);
     }
 }
 
-void Drop(struct Game *game, int *timeout)
+static void Drop(struct Game *game, int *timeout)
 {
+    int hardDropCount = 1;
     while (!game->Collision.Bottom)
     {
+        hardDropCount++;
         game->CurrentShape.Y++;
-        CheckCollision(&game->CurrentShape, &game->Collision);
+        CheckCollision(&game->World, &game->CurrentShape, &game->Collision);
     }
 
-    AddToWorld(&game->CurrentShape);
+    game->Score += hardDropCount;
+
+    AddToWorld(&game->World, &game->CurrentShape);
     RemoveFullLines(game);
     SetNewBlock(game);
 
-    *timeout = 1000;
+    *timeout = FALL_SPEED_MS;
+}
+
+void SetupGame(struct Game *game)
+{
+    game->Score = 0;
+    SetupCurses(game);
+    SetupWorld(&game->World);
+    SetNewBlock(game);
+}
+
+void GameOver()
+{
+    DrawGameOver();
+    timeout(-1);
+    while (getch() != 'q');
 }
 
 void Loop(struct Game *game)
@@ -173,23 +207,31 @@ void Loop(struct Game *game)
     struct timeval endTime;
     int totalTime;
     int clipping = 0;
-    int timeout = 1000;
-    timeout(timeout);
+    int timeout = FALL_SPEED_MS;
 
     while (1)
     {
-        clipping = CheckClipping(&game->CurrentShape);
-        if (clipping) return;
+        timeout(timeout);
+
+        clipping = CheckClipping(&game->World, &game->CurrentShape);
+        if (clipping)
+            return GameOver();
+        CheckCollision(&game->World, &game->CurrentShape, &game->Collision);
+
         gettimeofday(&startTime, NULL);
+
         Render(game);
-        CheckCollision(&game->CurrentShape, &game->Collision);
         refresh();
+
         c = getch();
+
         gettimeofday(&endTime, NULL);
         totalTime = ((endTime.tv_sec - startTime.tv_sec) * 1000000 + endTime.tv_usec - startTime.tv_usec) / 1000;
+
         switch (c)
         {
         case 'q':
+            GameOver();
             return;
         case ' ':
             Drop(game, &timeout);
@@ -215,9 +257,8 @@ void Loop(struct Game *game)
             timeout = timeout - totalTime;
             if (timeout < 1)
             {
-                timeout = 1000;
+                timeout = FALL_SPEED_MS;
             }
         }
-        timeout(timeout);
     }
 }

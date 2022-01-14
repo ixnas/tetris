@@ -1,6 +1,6 @@
 #include "shape_types.h"
 
-void SetupShapeBlock(struct Shape *shape)
+void SetupShapeBlock(struct Shape* shape)
 {
 	int shapeSize, lineSize, blockIndexesSize;
 
@@ -18,7 +18,7 @@ void SetupShapeBlock(struct Shape *shape)
 	SetupShape(shape, shapeSize, lineSize, blockIndexes, blockIndexesSize, 2);
 }
 
-void SetupShapeL1(struct Shape *shape)
+void SetupShapeL1(struct Shape* shape)
 {
 	int shapeSize, lineSize, blockIndexesSize;
 
@@ -36,7 +36,7 @@ void SetupShapeL1(struct Shape *shape)
 	SetupShape(shape, shapeSize, lineSize, blockIndexes, blockIndexesSize, 3);
 }
 
-void SetupShapeL2(struct Shape *shape)
+void SetupShapeL2(struct Shape* shape)
 {
 	int shapeSize, lineSize, blockIndexesSize;
 
@@ -54,7 +54,7 @@ void SetupShapeL2(struct Shape *shape)
 	SetupShape(shape, shapeSize, lineSize, blockIndexes, blockIndexesSize, 4);
 }
 
-void SetupShapeLine(struct Shape *shape)
+void SetupShapeLine(struct Shape* shape)
 {
 	int shapeSize, lineSize, blockIndexesSize;
 
@@ -72,7 +72,7 @@ void SetupShapeLine(struct Shape *shape)
 	SetupShape(shape, shapeSize, lineSize, blockIndexes, blockIndexesSize, 5);
 }
 
-void SetupShapeS1(struct Shape *shape)
+void SetupShapeS1(struct Shape* shape)
 {
 	int shapeSize, lineSize, blockIndexesSize;
 
@@ -90,7 +90,7 @@ void SetupShapeS1(struct Shape *shape)
 	SetupShape(shape, shapeSize, lineSize, blockIndexes, blockIndexesSize, 6);
 }
 
-void SetupShapeS2(struct Shape *shape)
+void SetupShapeS2(struct Shape* shape)
 {
 	int shapeSize, lineSize, blockIndexesSize;
 
@@ -108,7 +108,7 @@ void SetupShapeS2(struct Shape *shape)
 	SetupShape(shape, shapeSize, lineSize, blockIndexes, blockIndexesSize, 7);
 }
 
-void SetupShapeT(struct Shape *shape)
+void SetupShapeT(struct Shape* shape)
 {
 	int shapeSize, lineSize, blockIndexesSize;
 

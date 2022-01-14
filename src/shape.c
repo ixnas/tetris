@@ -1,7 +1,7 @@
 #include "shape.h"
 #include <ncurses.h>
 
-static int GetRotatedBlockPosition(int block, struct Shape *shape)
+static int GetRotatedBlockPosition(int block, struct Shape* shape)
 {
 	int totalLines, currentLine, totalBlocks;
 
@@ -12,9 +12,10 @@ static int GetRotatedBlockPosition(int block, struct Shape *shape)
 	return ((block + 1) * totalLines - currentLine - 1) % totalBlocks;
 }
 
-void SetupShape(struct Shape *shape, int shapeSize, int lineSize, int *blockIndexes, int blockIndexesSize, int colorPair)
+void SetupShape(struct Shape* shape, int shapeSize, int lineSize, int* blockIndexes, int blockIndexesSize,
+                int colorPair)
 {
-	int *firstBlockIndex;
+	int* firstBlockIndex;
 	int totalBlocks, i;
 	firstBlockIndex = blockIndexes;
 	totalBlocks = sizeof(shape->Blocks) / sizeof(shape->Blocks[0]);
@@ -32,7 +33,7 @@ void SetupShape(struct Shape *shape, int shapeSize, int lineSize, int *blockInde
 	}
 }
 
-void RotateShape(struct Shape *shape, int turns)
+void RotateShape(struct Shape* shape, int turns)
 {
 	int newBlockPosition, i, j;
 	int size = sizeof(shape->Blocks) / sizeof(shape->Blocks[0]);
@@ -42,7 +43,7 @@ void RotateShape(struct Shape *shape, int turns)
 	for (i = 0; i < size; i++)
 	{
 		newBlockPosition = shape->Blocks[i];
-		for (j = 0 ; j < turns; j++)
+		for (j = 0; j < turns; j++)
 		{
 			newBlockPosition = GetRotatedBlockPosition(newBlockPosition, shape);
 		}

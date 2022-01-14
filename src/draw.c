@@ -12,7 +12,7 @@ static void DrawBlock(int x, int y)
 	DrawChar(x + 1, y + 1, ' ');
 }
 
-void DrawEmptyBoard(struct World *world)
+void DrawEmptyBoard(struct World* world)
 {
 	int i, j;
 	int worldSize = sizeof(world->Cells) / sizeof(world->Cells[0]);
@@ -37,7 +37,7 @@ void DrawEmptyBoard(struct World *world)
 	attron(COLOR_PAIR(1));
 }
 
-void DrawWorld(struct World *world)
+void DrawWorld(struct World* world)
 {
 	int size = sizeof(world->Cells) / sizeof(world->Cells[0]);
 	int x, y, i;
@@ -55,7 +55,7 @@ void DrawWorld(struct World *world)
 	}
 }
 
-void DrawShape(struct Shape *shape)
+void DrawShape(struct Shape* shape)
 {
 	int size = sizeof(shape->Blocks) / sizeof(shape->Blocks[0]);
 	int totalLines = shape->ShapeSize / shape->LineSize;
@@ -71,7 +71,7 @@ void DrawShape(struct Shape *shape)
 	attron(COLOR_PAIR(1));
 }
 
-void DrawScore(int *score)
+void DrawScore(int* score)
 {
 	move(0, 25);
 	printw("Score: %d", *score);

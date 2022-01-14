@@ -1,9 +1,9 @@
+#include "defaults.h"
+#include "game.h"
+#include <ncurses.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
-#include <ncurses.h>
-#include "defaults.h"
-#include "game.h"
 
 bool ScreenSizeOk()
 {

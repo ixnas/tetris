@@ -2,20 +2,20 @@
 #define WORLD_H
 #include "shape.h"
 
-struct World 
+struct World
 {
-    int Cells[200];
-    int LineSize;
+	int Cells[200];
+	int LineSize;
 };
 
 struct Collision
 {
-    int Left, Right, Bottom;
+	int Left, Right, Bottom;
 };
 
-void SetupWorld(struct World *world);
-void AddToWorld(struct World *world, struct Shape *shape);
-void CheckCollision(struct World *world, struct Shape *shape, struct Collision *collision);
-int CheckClipping(struct World *world, struct Shape *shape);
+void SetupWorld(struct World* world);
+void AddToWorld(struct World* world, struct Shape* shape);
+void CheckCollision(struct World* world, struct Shape* shape, struct Collision* collision);
+int CheckClipping(struct World* world, struct Shape* shape);
 
 #endif

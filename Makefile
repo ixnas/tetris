@@ -9,7 +9,7 @@ CFLAGS := -Wall -O3 -std=c89
 all: clean prep build
 
 clean:
-	rm -r bin obj
+	rm -rf bin obj
 
 prep:
 	mkdir -p bin obj
